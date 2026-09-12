@@ -1,24 +1,47 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - main
 
 pool:
   vmImage: ubuntu-latest
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+variables:
+- group: 'New variable group 11-Sep'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+stages:
 
-stage: Deploy
+# ============================================================
+# STAGE 1: VALIDATE
+# ============================================================
+- stage: Validate
+  displayName: 'Validate Build'
+
+  jobs:
+  - job: ValidateWebsite
+    displayName: 'Validate Static Website'
+
+    steps:
+
+    - checkout: self
+
+    - script: |
+        echo "Checking website files..."
+        echo "Repository: $(Build.SourcesDirectory)"
+
+        if [ ! -f "$(Build.SourcesDirectory)/index.html" ]; then
+          echo "ERROR: index.html was not found."
+          exit 1
+        fi
+
+        echo "index.html found successfully."
+        echo "Website validation completed successfully."
+
+      displayName: 'Validate Website'
+
+
+# ============================================================
+# STAGE 2: DEPLOY
+# ============================================================
+- stage: Deploy
   displayName: 'Deploy to Azure Static Web App'
 
   dependsOn: Validate
